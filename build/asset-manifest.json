@@ -1,14 +1,14 @@
 {
-  "main.css": "/static/css/main.191d50ba.chunk.css",
-  "main.js": "/static/js/main.633905ad.chunk.js",
-  "main.js.map": "/static/js/main.633905ad.chunk.js.map",
-  "static/js/1.2dd891c4.chunk.js": "/static/js/1.2dd891c4.chunk.js",
-  "static/js/1.2dd891c4.chunk.js.map": "/static/js/1.2dd891c4.chunk.js.map",
-  "runtime~main.js": "/static/js/runtime~main.229c360f.js",
-  "runtime~main.js.map": "/static/js/runtime~main.229c360f.js.map",
-  "static/media/logo.svg": "/static/media/logo.5d5d9eef.svg",
-  "static/css/main.191d50ba.chunk.css.map": "/static/css/main.191d50ba.chunk.css.map",
-  "index.html": "/index.html",
-  "precache-manifest.c26e3c9f5fea55db3df40c4b01df853a.js": "/precache-manifest.c26e3c9f5fea55db3df40c4b01df853a.js",
-  "service-worker.js": "/service-worker.js"
+  "main.css": "/name-game-generator/static/css/main.191d50ba.chunk.css",
+  "main.js": "/name-game-generator/static/js/main.37bbb01a.chunk.js",
+  "main.js.map": "/name-game-generator/static/js/main.37bbb01a.chunk.js.map",
+  "static/js/1.2dd891c4.chunk.js": "/name-game-generator/static/js/1.2dd891c4.chunk.js",
+  "static/js/1.2dd891c4.chunk.js.map": "/name-game-generator/static/js/1.2dd891c4.chunk.js.map",
+  "runtime~main.js": "/name-game-generator/static/js/runtime~main.186cf901.js",
+  "runtime~main.js.map": "/name-game-generator/static/js/runtime~main.186cf901.js.map",
+  "static/media/logo.svg": "/name-game-generator/static/media/logo.5d5d9eef.svg",
+  "static/css/main.191d50ba.chunk.css.map": "/name-game-generator/static/css/main.191d50ba.chunk.css.map",
+  "index.html": "/name-game-generator/index.html",
+  "precache-manifest.14d183a7eec4f6788e39fe8cab7b6c97.js": "/name-game-generator/precache-manifest.14d183a7eec4f6788e39fe8cab7b6c97.js",
+  "service-worker.js": "/name-game-generator/service-worker.js"
 }
