@@ -1,13 +1,13 @@
 {
   "main.css": "/name-game-generator/static/css/main.ee79afcf.chunk.css",
-  "main.js": "/name-game-generator/static/js/main.d983af64.chunk.js",
-  "main.js.map": "/name-game-generator/static/js/main.d983af64.chunk.js.map",
-  "static/js/1.649b615d.chunk.js": "/name-game-generator/static/js/1.649b615d.chunk.js",
-  "static/js/1.649b615d.chunk.js.map": "/name-game-generator/static/js/1.649b615d.chunk.js.map",
+  "main.js": "/name-game-generator/static/js/main.4883cbd4.chunk.js",
+  "main.js.map": "/name-game-generator/static/js/main.4883cbd4.chunk.js.map",
+  "static/js/1.eead899f.chunk.js": "/name-game-generator/static/js/1.eead899f.chunk.js",
+  "static/js/1.eead899f.chunk.js.map": "/name-game-generator/static/js/1.eead899f.chunk.js.map",
   "runtime~main.js": "/name-game-generator/static/js/runtime~main.186cf901.js",
   "runtime~main.js.map": "/name-game-generator/static/js/runtime~main.186cf901.js.map",
   "static/css/main.ee79afcf.chunk.css.map": "/name-game-generator/static/css/main.ee79afcf.chunk.css.map",
   "index.html": "/name-game-generator/index.html",
-  "precache-manifest.dc3995ae43189129b90321023ca1939e.js": "/name-game-generator/precache-manifest.dc3995ae43189129b90321023ca1939e.js",
+  "precache-manifest.54cf9ca4098214f3717c379fe90df958.js": "/name-game-generator/precache-manifest.54cf9ca4098214f3717c379fe90df958.js",
   "service-worker.js": "/name-game-generator/service-worker.js"
 }
