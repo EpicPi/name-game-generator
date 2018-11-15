@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import JSZip from 'jszip';
-import { debug } from 'util';
+import { CSVLink } from "react-csv";
 
 class App extends Component {
   constructor(props){
@@ -10,7 +10,8 @@ class App extends Component {
       clubName: "",
       mFile: "",
       fFile: "",
-      out: null,
+      out1: null,
+      out2: null,
       mNames: [],
       step: 0
     }
@@ -42,36 +43,74 @@ class App extends Component {
   }
 
   async processData(){
-    const out = []
+    let out = []
     const failed = []
     
     const mzip = await JSZip.loadAsync(this.state.mFile);
-    const fzip = await JSZip.loadAsync(this.state.fFile);
     let mNames = this.getNames(mzip);
-    this.addSingles(mNames,"Male",out);
+    this.addSingles(mNames,"male",out);
     mNames = mNames.filter(name=>name.includes("&"))
 
+    const fzip = await JSZip.loadAsync(this.state.fFile);
     let fNames = this.getNames(fzip);
-    this.addSingles(fNames,"Female",out);
+    this.addSingles(fNames,"female",out);
     fNames = fNames.filter(name=>name.includes("&"))
 
-    console.log(out);
-    console.log(mNames);
-    console.log(fNames);
+    
+    let searched = []
 
-    const genNames = []
-    mNames.forEach(file=>{
+    mNames = this.splitNames(mNames,failed);
+    mNames =await this.getGenders(mNames,searched);
+
+    fNames = this.splitNames(fNames,failed);
+    fNames = await this.getGenders(fNames,searched);
+
+    out = out.concat(this.mapNamesToOut(mNames,"male"));
+    out = out.concat(this.mapNamesToOut(fNames,"female"));
+
+    this.setState({out1:out});
+    this.setState({step:2});
+  }
+  mapNamesToOut(names, gender){
+    const out = []
+    names.forEach(name=>{
+
+      const n0 = name[name.names[0]]
+      const n1 = name[name.names[1]]
+      let i = 0;
+      if(n0.gender === n1.gender){
+        if (n0.gender !== gender)
+          i = (n0.probability > n1.probability)?1:0; // if wrong gender, choose one of lesser prob
+        else
+          i = (n0.probability < n1.probability)?1:0; // if right gender, choose one of more prob
+      }else{
+        i = (n0.gender===gender)?0:1; //if diff genders, choose correct gender
+      }
+      out.push(
+        {
+          file:name.file,
+          first:name.names[i],
+          last:this.removeEnd(name.file).split(",")[0],
+          gender,
+          married:"true"
+        });
+    });
+    return out;
+  }
+
+  splitNames(names,failed){
+    const splitNames = []
+    names.forEach(file=>{
       try{
-        const names = this.removeEnd(file).split(',')[1].split("&");
-        genNames.push(names);
+        let na = this.removeEnd(file).split(',')[1].split("&");
+        na = na.map(n=>n.trim());
+        splitNames.push({names:na,file});
       }
       catch(e){
         failed.push(file);
       }
     });
-    console.log(genNames);
-    let outGenNames = []
-    this.getGenders(genNames,outGenNames);
+    return splitNames;
   }
   removeEnd(file){
     let out = file.split('-');
@@ -84,7 +123,7 @@ class App extends Component {
       const name = this.removeEnd(file);
       const first = name.split(',')[1];
       const last = name.split(',')[0];
-      out.push({file,first,last,gender})
+      out.push({file,first,last,gender,married:"false"})
     });
   }
   getNames(zip){
@@ -100,19 +139,27 @@ class App extends Component {
     }    
     return names
   }
-  async getGenders(names, prevNames){
+  async getGenders(names, searched){
+    const out = []
     for (const n of names){
-      if (!this.contains(prevNames,n)){
-        console.log(n[0])
-        const res = await (await fetch("https://api.genderize.io/?name="+"Albert".split(' ')[0])).json();
-        debugger;
-
-        console.log(res.json);
-      }
+        
+      let res0 = searched.filter(x=>x.name===n.names[0].split(' ')[0]);
+      if (!res0.length){
+        res0 = await (await fetch("https://api.genderize.io/?name="+n.names[0].split(' ')[0])).json();
+        searched.push(res0);
+      }else
+        res0 = res0[0]; 
+        
+      let res1 = searched.filter(x=>x.name===n.names[1].split(' ')[0]);  
+      if (!res1.length){
+        res1 = await (await fetch("https://api.genderize.io/?name="+n.names[1].split(' ')[0])).json();
+        searched.push(res1);
+      }else
+        res1 = res1[0]; 
+        
+      out.push({names:n.names,[n.names[0]]:res0,[n.names[1]]:res1,file:n.file});
     }
-  }
-  contains(list,el){
-    return list.filter(x=>x.names===el).length;
+    return out;
   }
   getForm(){
     return (
@@ -142,7 +189,7 @@ class App extends Component {
   getOutput(){
     return (
       <div>
-        Output
+        <CSVLink data={this.state.out1} filename={this.state.clubName+"csv"}>Download Name-Game CSV for {this.state.clubName}</CSVLink>;
       </div>
     )
   }
