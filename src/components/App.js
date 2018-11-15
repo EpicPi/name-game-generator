@@ -12,8 +12,9 @@ class App extends Component {
       fFile: "",
       out1: null,
       out2: null,
-      mNames: [],
-      step: 0
+      step: 0,
+      total: 0,
+      completed: 0
     }
     this.fileUpload = this.fileUpload.bind(this);
     this.textInput = this.textInput.bind(this);
@@ -25,7 +26,7 @@ class App extends Component {
     this.getNames = this.getNames.bind(this);
   }
   fileUpload(e){
-    if(e.target.files[0].type!=="application/zip"){
+    if(e.target.files[0] && e.target.files[0].type!=="application/zip"){
       alert("please upload only zip files of the images");
       e.target.value = "";
     }else{
@@ -36,8 +37,11 @@ class App extends Component {
     this.setState({[e.target.name]: e.target.value});
   }
   async onSubmit(e){
-    console.log(this.state.mFile)
     e.preventDefault();
+    if(!this.state.mFile || !this.state.fFile || !this.state.clubName){
+      alert("Please provide all the information");
+      return;
+    }
     this.setState({step:1});
     this.processData()
   }
@@ -56,7 +60,9 @@ class App extends Component {
     this.addSingles(fNames,"female",out);
     fNames = fNames.filter(name=>name.includes("&"))
 
-    
+    this.setState({total:fNames.length+mNames.length})
+    this.setState({completed:out.length})
+
     let searched = []
 
     mNames = this.splitNames(mNames,failed);
@@ -69,7 +75,50 @@ class App extends Component {
     out = out.concat(this.mapNamesToOut(fNames,"female"));
 
     this.setState({out1:out});
+    this.setState({out2:this.processData2(out)});
     this.setState({step:2});
+  }
+  processData2(objs){
+    const out = []
+    const ms = []
+    const fs = []
+    objs.forEach(obj => {
+      let fullName = ""
+      if(obj.gender==="male"){
+        fullName = "Mr."+obj.first+" "+obj.last;
+        ms.push(fullName);
+      }
+      else {
+        const intro = obj.married==="true"?"Mrs.":"Ms.";
+        fullName = intro+obj.first+" "+obj.last;
+        fs.push(fullName);
+      } 
+      obj.fullName = fullName;     
+    })
+    objs.forEach(obj => {
+      const wa = this.getWrongAnswers(obj.fullName,obj.gender==="female"?fs:ms)
+      out.push({file:obj.file,name:obj.fullName,answer1:wa[0],answer2:wa[1],answer3:wa[2]});
+    });
+    return out;
+  }
+  shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+  } 
+  getWrongAnswers(name,list){
+    const out =[]
+    this.shuffleArray(list);
+    let i =0;
+    while(out.length<3){
+      if(list[i]!==name)
+        out.push(list[i]);
+      i++;
+    }  
+    return out;
   }
   mapNamesToOut(names, gender){
     const out = []
@@ -121,8 +170,8 @@ class App extends Component {
     singles = singles.filter(name=>!name.includes("&"))
     singles.forEach(file=>{
       const name = this.removeEnd(file);
-      const first = name.split(',')[1];
-      const last = name.split(',')[0];
+      const first = name.split(',')[1].trim();
+      const last = name.split(',')[0].trim();
       out.push({file,first,last,gender,married:"false"})
     });
   }
@@ -146,6 +195,9 @@ class App extends Component {
       let res0 = searched.filter(x=>x.name===n.names[0].split(' ')[0]);
       if (!res0.length){
         res0 = await (await fetch("https://api.genderize.io/?name="+n.names[0].split(' ')[0])).json();
+        if(res0.error){
+          alert(res0.error)
+        }
         searched.push(res0);
       }else
         res0 = res0[0]; 
@@ -153,10 +205,14 @@ class App extends Component {
       let res1 = searched.filter(x=>x.name===n.names[1].split(' ')[0]);  
       if (!res1.length){
         res1 = await (await fetch("https://api.genderize.io/?name="+n.names[1].split(' ')[0])).json();
+        if(res0.error){
+          alert(res0.error)
+        }
         searched.push(res1);
       }else
         res1 = res1[0]; 
         
+      this.setState({completed:this.state.completed+2});
       out.push({names:n.names,[n.names[0]]:res0,[n.names[1]]:res1,file:n.file});
     }
     return out;
@@ -183,13 +239,20 @@ class App extends Component {
     return (
       <div>
         Loading
+        <br/>
+        {"completed "+this.state.completed}
+        <br/>
+        {"of "+this.state.total}
       </div>
     )
   }
   getOutput(){
     return (
       <div>
-        <CSVLink data={this.state.out1} filename={this.state.clubName+"csv"}>Download Name-Game CSV for {this.state.clubName}</CSVLink>;
+        <CSVLink data={this.state.out1} filename={this.state.clubName+"_data_rich.csv"}>Download Name-Game CSV for {this.state.clubName} (data rich version)</CSVLink>
+        <br/>
+        <br/>
+        <CSVLink data={this.state.out2} filename={this.state.clubName+"_wrong_answers.csv"}>Download Name-Game CSV for {this.state.clubName} (wrong answer generated version)</CSVLink>
       </div>
     )
   }
